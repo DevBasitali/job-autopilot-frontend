@@ -17,6 +17,7 @@ export default function DashboardPage() {
   const [jobTitle, setJobTitle] = useState("");
   const [location, setLocation] = useState("Remote");
   const [minScore, setMinScore] = useState(90);
+  const [maxJobs, setMaxJobs] = useState(20);
   
   const [searching, setSearching] = useState(false);
   const [jobs, setJobs] = useState<any[]>([]);
@@ -29,6 +30,9 @@ export default function DashboardPage() {
     try {
       const data = await parseResume(file);
       setProfile(data);
+      if (data.suggested_roles && data.suggested_roles.length > 0) {
+        setJobTitle(data.suggested_roles[0]);
+      }
     } catch (err) {
       console.error(err);
       alert("Failed to parse resume.");
@@ -46,7 +50,8 @@ export default function DashboardPage() {
         profile,
         job_title: jobTitle,
         location,
-        min_score: minScore
+        min_score: minScore,
+        max_jobs: maxJobs
       });
       setJobs(results);
     } catch (err) {
@@ -154,6 +159,20 @@ export default function DashboardPage() {
                   value={jobTitle} 
                   onChange={(e) => setJobTitle(e.target.value)} 
                 />
+                {profile?.suggested_roles && profile.suggested_roles.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {profile.suggested_roles.map((role: string, i: number) => (
+                      <Badge 
+                        key={i} 
+                        variant="secondary" 
+                        className="text-[10px] cursor-pointer hover:bg-primary/20 transition-colors"
+                        onClick={() => setJobTitle(role)}
+                      >
+                        {role}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-medium text-muted-foreground">Location</label>
@@ -162,7 +181,33 @@ export default function DashboardPage() {
                   value={location} 
                   onChange={(e) => setLocation(e.target.value)} 
                 />
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {["Remote", "On-site", "Hybrid"].map((loc, i) => (
+                    <Badge 
+                      key={i} 
+                      variant="secondary" 
+                      className="text-[10px] cursor-pointer hover:bg-primary/20 transition-colors"
+                      onClick={() => setLocation(loc)}
+                    >
+                      {loc}
+                    </Badge>
+                  ))}
+                </div>
               </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <label className="text-xs font-medium text-muted-foreground">Max Jobs to Scrape: {maxJobs}</label>
+              </div>
+              <input 
+                type="range" 
+                min="5" 
+                max="100" 
+                step="5"
+                value={maxJobs} 
+                onChange={(e) => setMaxJobs(parseInt(e.target.value))}
+                className="w-full accent-primary" 
+              />
             </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center">

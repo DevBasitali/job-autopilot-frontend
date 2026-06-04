@@ -20,7 +20,7 @@ export const parseResume = async (file: File) => {
   return response.data;
 };
 
-export const findJobs = async (payload: { profile: any; job_title: string; location: string; min_score: number }) => {
+export const findJobs = async (payload: { profile: any; job_title: string; location: string; min_score: number; max_jobs: number }) => {
   const response = await api.post('/find-jobs', payload);
   return response.data;
 };
